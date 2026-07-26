@@ -1,110 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  K-9  ·  the Nyfe network sentinel
-  Original mark by Nyfe. Brand palette: Midnight #0B1220 + Gold #C08542.
-  A geometric guard-dog head (alert, front-facing) inside a radar frame —
-  the watchdog that sniffs out every device on your network.
+  K-9  ·  by Nyfe
+  Minimal front-facing dog-face outline. Brand palette: Midnight #0B1220 + Gold #C08542.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024"
      viewBox="0 0 1024 1024" role="img" aria-label="K-9 by Nyfe">
   <defs>
-    <!-- Midnight-blue field: lifted, lit centre falling to almost-black edges -->
-    <radialGradient id="bg" cx="512" cy="452" r="660" gradientUnits="userSpaceOnUse">
-      <stop offset="0"    stop-color="#182B49"/>
-      <stop offset="0.45" stop-color="#101C33"/>
-      <stop offset="1"    stop-color="#0B1220"/>
+    <radialGradient id="bg" cx="512" cy="460" r="660" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#172940"/>
+      <stop offset="0.5" stop-color="#0F1A2E"/>
+      <stop offset="1"   stop-color="#0B1220"/>
     </radialGradient>
-
-    <!-- Metallic gold, top-lit -->
-    <linearGradient id="gold" x1="512" y1="196" x2="512" y2="812" gradientUnits="userSpaceOnUse">
-      <stop offset="0"    stop-color="#F4D699"/>
-      <stop offset="0.30" stop-color="#DEA959"/>
-      <stop offset="0.58" stop-color="#C08542"/>
-      <stop offset="0.82" stop-color="#9E6A31"/>
-      <stop offset="1"    stop-color="#7C5323"/>
+    <linearGradient id="gold" x1="512" y1="200" x2="512" y2="770" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#EBC079"/>
+      <stop offset="0.5" stop-color="#C08542"/>
+      <stop offset="1"   stop-color="#9A6733"/>
     </linearGradient>
-
-    <!-- Slightly deeper gold for the muzzle facet -->
-    <linearGradient id="goldMuzzle" x1="512" y1="620" x2="512" y2="800" gradientUnits="userSpaceOnUse">
-      <stop offset="0"   stop-color="#C89154"/>
-      <stop offset="0.5" stop-color="#A5712F"/>
-      <stop offset="1"   stop-color="#7A5222"/>
-    </linearGradient>
-
-    <filter id="eyeGlow" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="6" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-
-    <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.55"/>
-    </filter>
   </defs>
 
-  <!-- ===== Field ===== -->
   <rect x="0" y="0" width="1024" height="1024" rx="212" fill="url(#bg)"/>
 
-  <!-- ===== Radar / scanner frame (behind the dog) ===== -->
-  <g fill="none" stroke="#C08542">
-    <circle cx="512" cy="452" r="330" stroke-opacity="0.10" stroke-width="2"/>
-    <circle cx="512" cy="452" r="252" stroke-opacity="0.14" stroke-width="2.5" stroke-dasharray="3 12"/>
-    <circle cx="512" cy="452" r="184" stroke-opacity="0.10" stroke-width="2"/>
-  </g>
-  <!-- scan nodes riding the rings -->
-  <g fill="#C08542">
-    <circle cx="512" cy="200" r="4.5" fill-opacity="0.55"/>
-    <circle cx="264" cy="452" r="4"   fill-opacity="0.4"/>
-    <circle cx="760" cy="452" r="4"   fill-opacity="0.4"/>
-    <circle cx="335" cy="629" r="3.5" fill-opacity="0.35"/>
-    <circle cx="689" cy="629" r="3.5" fill-opacity="0.35"/>
-  </g>
+  <g fill="none" stroke="url(#gold)" stroke-width="17"
+     stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- ===== Corner HUD brackets ===== -->
-  <g fill="none" stroke="#C08542" stroke-opacity="0.5" stroke-width="5" stroke-linecap="round">
-    <path d="M92 176 L92 120 A28 28 0 0 1 120 92 L176 92"/>
-    <path d="M932 176 L932 120 A28 28 0 0 0 904 92 L848 92"/>
-    <path d="M92 848 L92 904 A28 28 0 0 0 120 932 L176 932"/>
-    <path d="M932 848 L932 904 A28 28 0 0 0 904 932 L848 932"/>
-  </g>
+    <!-- head + ears outline (right half, mirrored for the left) -->
+    <path id="face" d="M512 306
+             C 536 302, 556 302, 576 298
+             L 650 210
+             C 676 254, 694 318, 702 374
+             C 712 434, 706 478, 690 526
+             C 670 586, 630 632, 584 668
+             C 558 690, 540 706, 528 724
+             C 522 733, 518 738, 512 744"/>
+    <use href="#face" transform="matrix(-1 0 0 1 1024 0)"/>
 
-  <!-- ===== Sentinel dog head ===== -->
-  <g filter="url(#drop)">
-    <!-- right half (mirrored for the left) -->
-    <g id="half">
-      <!-- head plate -->
-      <path fill="url(#gold)" d="M512 316 L606 326 L692 400 L668 516 L602 598 L548 654 L512 668 Z"/>
-      <!-- ear -->
-      <path fill="url(#gold)" d="M596 332 L662 208 L692 404 Z"/>
-      <!-- inner ear -->
-      <path fill="#7A5322" fill-opacity="0.85" d="M616 336 L652 256 L668 372 Z"/>
-      <!-- muzzle facet -->
-      <path fill="url(#goldMuzzle)" d="M512 646 L558 652 L544 764 L512 774 Z"/>
-      <!-- cheek facet line -->
-      <path stroke="#7C5626" stroke-opacity="0.45" stroke-width="4" fill="none"
-            stroke-linecap="round" d="M676 452 L604 590"/>
-      <!-- eye -->
-      <path fill="#0B1220" filter="url(#eyeGlow)" d="M598 470 L544 492 L550 520 L592 500 Z"/>
-      <path fill="none" stroke="#EBC079" stroke-width="4" stroke-linejoin="round"
-            d="M598 470 L544 492 L550 520 L592 500 Z"/>
-      <!-- eye glint -->
-      <path fill="#F4D699" d="M584 480 L596 482 L588 492 Z"/>
-    </g>
-    <use href="#half" transform="matrix(-1 0 0 1 1024 0)"/>
+    <!-- eyes -->
+    <path d="M436 470 C 452 456, 480 456, 496 470 C 480 484, 452 484, 436 470 Z"/>
+    <path d="M528 470 C 544 456, 572 456, 588 470 C 572 484, 544 484, 528 470 Z"/>
 
-    <!-- centred pieces -->
-    <!-- brow ridge (aggressive downward chevron) -->
-    <path fill="#8A5E2B" d="M452 396 L512 466 L572 396 L560 380 L512 442 L464 380 Z"/>
-    <!-- forehead sheen -->
-    <path fill="#F4D699" fill-opacity="0.35" d="M512 330 L556 340 L512 372 L470 340 Z"/>
-    <!-- muzzle centre ridge highlight -->
-    <path fill="#F0CE8A" fill-opacity="0.4" d="M506 470 L518 470 L514 754 L510 754 Z"/>
     <!-- nose -->
-    <path fill="#241813" d="M486 748 L538 748 L512 792 Z"/>
-    <path fill="#5A3E24" d="M500 754 L524 754 L512 770 Z"/>
-  </g>
+    <path d="M486 636 C 486 624, 538 624, 538 636 C 538 654, 512 672, 512 672
+             C 512 672, 486 654, 486 636 Z"/>
 
-  <!-- ===== Maker mark ===== -->
-  <text x="512" y="946" text-anchor="middle" font-family="sans-serif"
-        font-size="34" font-weight="600" letter-spacing="14"
-        fill="#C08542" fill-opacity="0.6">NYFE</text>
+    <!-- muzzle / mouth -->
+    <path d="M512 672 L512 702"/>
+    <path d="M512 702 C 502 713, 488 713, 480 707"/>
+    <path d="M512 702 C 522 713, 536 713, 544 707"/>
+  </g>
 </svg>
