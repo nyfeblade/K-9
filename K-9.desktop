@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=ViperScan
+Name=K-9
 GenericName=Network Device Scanner
 Comment=See every device on the network you're on and flag cameras, mics & unknown devices
-Exec=/home/kuiu-mc-crank/ViperScan/viperscan-run.sh
-Icon=/home/kuiu-mc-crank/ViperScan/assets/ViperShardOfficialLogo-4x.png
+Exec=/home/nyfe/K-9/k9-run.sh
+Icon=/home/nyfe/K-9/assets/K-9-logo.png
 Terminal=true
 Categories=Network;Security;System;
 Keywords=network;scanner;devices;camera;security;wifi;lan;
