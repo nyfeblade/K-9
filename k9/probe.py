@@ -36,7 +36,7 @@ _ADMIN_PATHS = [
 ]
 # A path that should never exist, used to detect "returns 200 for everything"
 # single-page apps so we don't report bogus path hits.
-_NX_PATH = "/viperscan_nonexistent_zzq_404_check"
+_NX_PATH = "/k9_nonexistent_zzq_404_check"
 
 # Small, vendor-targeted default-credential sets. Defenders' shortlist, not an
 # exhaustive brute-force dictionary.
@@ -93,7 +93,7 @@ def http_probe(ip: str, port: int, scheme: str = "http", path: str = "/",
             ctx = ssl._create_unverified_context()
             sock = ctx.wrap_socket(sock, server_hostname=ip)
         req = (f"GET {path} HTTP/1.1\r\nHost: {ip}\r\n"
-               "User-Agent: ViperScan\r\nAccept: */*\r\nConnection: close\r\n")
+               "User-Agent: K-9\r\nAccept: */*\r\nConnection: close\r\n")
         if auth is not None:
             token = base64.b64encode(f"{auth[0]}:{auth[1]}".encode()).decode()
             req += f"Authorization: Basic {token}\r\n"

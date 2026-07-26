@@ -1,6 +1,6 @@
 """Pull authoritative hostnames from local DHCP-server lease files.
 
-If the machine running ViperScan is also the DHCP server (a router, a Pi-hole /
+If the machine running K-9 is also the DHCP server (a router, a Pi-hole /
 dnsmasq box, an OpenWrt device), its lease file is the single most reliable
 source of device names — every device tells the DHCP server its hostname at
 join time. We read the common dnsmasq and ISC-dhcpd lease locations and map

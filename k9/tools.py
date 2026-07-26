@@ -1,6 +1,6 @@
 """External intel & bypass orchestration — squeeze every drop from each device.
 
-During a Deep audit (scope-gated, authorized targets only) ViperScan auto-runs
+During a Deep audit (scope-gated, authorized targets only) K-9 auto-runs
 any best-of-breed pentest tools it finds installed on this machine and folds
 their output back into the device's findings plus an "extra intel" section:
 
@@ -174,7 +174,7 @@ def _wordlist():
               "/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt"):
         if os.path.isfile(p):
             return p, False
-    wl = os.path.join("/tmp", "viperscan_wl.txt")
+    wl = os.path.join("/tmp", "k9_wl.txt")
     try:
         with open(wl, "w", encoding="utf-8") as fh:
             fh.write("\n".join(_COMMON_PATHS) + "\n")
@@ -194,7 +194,7 @@ def _content_discovery(url, timeout=75):
     dirb = _which(["dirb"])
     try:
         if ffuf:
-            of = os.path.join("/tmp", "viperscan_ffuf_%x.json" % (abs(hash(url)) % (1 << 28)))
+            of = os.path.join("/tmp", "k9_ffuf_%x.json" % (abs(hash(url)) % (1 << 28)))
             _run([ffuf, "-u", base + "/FUZZ", "-w", wl, "-t", "40", "-se", "-s",
                   "-mc", "200,204,301,302,307,308,401,403,500", "-of", "json", "-o", of], timeout)
             try:
@@ -236,7 +236,7 @@ def _content_discovery(url, timeout=75):
             findings.append(_f("low", "Restricted endpoints discovered",
                                "Present but access-controlled: " + ", ".join(forb[:12]),
                                "These exist behind 401/403 — confirm they aren't bypassable "
-                               "(ViperScan's 403-bypass step handles the admin panel)."))
+                               "(K-9's 403-bypass step handles the admin panel)."))
     return intel, findings
 
 

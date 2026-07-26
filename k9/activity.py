@@ -2,7 +2,7 @@
 
 Honest scope: on a switched / Wi-Fi network a host that isn't the gateway can't
 see the private unicast traffic between other devices and the internet (that
-needs router-level capture or intrusive ARP-spoofing, which ViperScan doesn't
+needs router-level capture or intrusive ARP-spoofing, which K-9 doesn't
 do). What it CAN observe per device, with light probes and no root:
 
   * liveness & responsiveness  (ping samples → online, loss, latency, jitter)

@@ -1,4 +1,4 @@
-"""ViperScan command-line entry point and scan orchestration."""
+"""K-9 command-line entry point and scan orchestration."""
 
 from __future__ import annotations
 
@@ -13,11 +13,11 @@ from .discovery import Host
 
 
 def _normalize_data_home():
-    """Keep the data directory consistent whether ViperScan runs normally or
+    """Keep the data directory consistent whether K-9 runs normally or
     under sudo. Under sudo, ~ resolves to /root, which would split your
     annotations/scope/config from your normal-user store. Pin it to the
-    invoking user's ~/.viperscan via $SUDO_USER so renames etc. survive."""
-    if os.environ.get("VIPERSCAN_HOME"):
+    invoking user's ~/.k9 via $SUDO_USER so renames etc. survive."""
+    if os.environ.get("K9_HOME"):
         return
     sudo_user = os.environ.get("SUDO_USER")
     if sudo_user and sudo_user != "root":
@@ -25,7 +25,7 @@ def _normalize_data_home():
             import pwd
             home = pwd.getpwnam(sudo_user).pw_dir
             if home:
-                os.environ["VIPERSCAN_HOME"] = os.path.join(home, ".viperscan")
+                os.environ["K9_HOME"] = os.path.join(home, ".k9")
         except (KeyError, ImportError):
             pass
 
@@ -57,7 +57,7 @@ def run_scan(args) -> tuple[list[Host], dict]:
     db = oui.OuiDB()
 
     if not args.quiet:
-        _eprint(f"  ViperScan v{__version__} · scanning {cidr} on {iface} "
+        _eprint(f"  K-9 v{__version__} · scanning {cidr} on {iface} "
                 f"({len(targets)} addresses)…")
 
     # 1) discover hosts
@@ -223,15 +223,15 @@ def _fingerprint_hosts(hosts: list[Host], ports, args, quiet: bool) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="viperscan",
-        description="ViperScan — discover and flag every device on the network you're on.",
+        prog="k9",
+        description="K-9 — discover and flag every device on the network you're on.",
         epilog="Examples:\n"
-               "  viperscan                     launch the dashboard (all modes live in the browser)\n"
-               "  viperscan --net 10.0.0.0/24   open the dashboard pre-pointed at a subnet\n"
-               "  viperscan --cli               one-shot terminal report instead of the dashboard\n"
-               "  viperscan --cli --unhide      terminal report, deep-identifying quiet hosts\n"
-               "  viperscan --watch 30          terminal: rescan every 30s, alert on new/changed\n"
-               "  viperscan --json out.json     terminal: write machine-readable results\n",
+               "  k9                     launch the dashboard (all modes live in the browser)\n"
+               "  k9 --net 10.0.0.0/24   open the dashboard pre-pointed at a subnet\n"
+               "  k9 --cli               one-shot terminal report instead of the dashboard\n"
+               "  k9 --cli --unhide      terminal report, deep-identifying quiet hosts\n"
+               "  k9 --watch 30          terminal: rescan every 30s, alert on new/changed\n"
+               "  k9 --json out.json     terminal: write machine-readable results\n",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--net", help="CIDR to scan (default: your current subnet)")
@@ -264,7 +264,7 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Wi-Fi hot/cold finder: live signal meter to physically track down a device (needs sudo + a monitor-mode adapter)")
     p.add_argument("--iface", help="wireless interface to use for --locate (default: auto)")
     p.add_argument("--channel", type=int, help="lock --locate to a specific Wi-Fi channel (default: auto-hop)")
-    p.add_argument("--version", action="version", version=f"ViperScan {__version__}")
+    p.add_argument("--version", action="version", version=f"K-9 {__version__}")
     return p
 
 

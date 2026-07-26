@@ -30,16 +30,16 @@ _TOKEN = ""      # per-session CSRF token; required on state-changing endpoints
 
 
 def _launcher_path() -> str:
-    """Absolute path to the viperscan.py launcher, for copy-paste CLI hints — so
-    they work from any directory. (Running `python3 viperscan.py` from the wrong
+    """Absolute path to the k9.py launcher, for copy-paste CLI hints — so
+    they work from any directory. (Running `python3 k9.py` from the wrong
     folder is the #1 'it crashed' cause; an absolute path side-steps it.)"""
-    cand = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "viperscan.py")
+    cand = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "k9.py")
     if os.path.isfile(cand):
         return cand
     argv0 = sys.argv[0] if sys.argv else ""
     if argv0 and os.path.isfile(argv0):
         return os.path.abspath(argv0)
-    return os.path.expanduser("~/ViperScan/viperscan.py")
+    return os.path.expanduser("~/K-9/k9.py")
 
 
 _LAUNCHER = _launcher_path()
@@ -82,7 +82,7 @@ def _watch_and_reload(interval=1.0):
         time.sleep(interval)
         try:
             if _source_mtime() > baseline + 0.01:
-                print("\n  source changed -> reloading ViperScan...\n")
+                print("\n  source changed -> reloading K-9...\n")
                 try:
                     _LOCATE.stop()
                 except Exception:
@@ -90,16 +90,16 @@ def _watch_and_reload(interval=1.0):
                 # Tell the re-exec'd process this is a reload so it does NOT open
                 # a fresh browser tab — the existing tab auto-refreshes itself via
                 # the build-id check. (Otherwise every file save spawns a new tab.)
-                os.environ["VIPERSCAN_RELOADED"] = "1"
+                os.environ["K9_RELOADED"] = "1"
                 os.execv(sys.executable, [sys.executable] + sys.argv)
         except Exception:
             pass
 
-# The official ViperShard logo, bundled with the project so the app stays
+# The official Nyfe logo, bundled with the project so the app stays
 # self-contained ("copy one folder, run python3").
 _LOGO_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "assets", "ViperShardOfficialLogo-4x.png",
+    "assets", "K-9-logo.png",
 )
 
 
@@ -121,7 +121,7 @@ _LOCATE = wifiloc.LocateSession()
 
 
 def _config_path() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     os.makedirs(base, exist_ok=True)
     return os.path.join(base, "dashboard.json")
 
@@ -247,25 +247,25 @@ def _metrics_text():
         out.append("# TYPE %s %s" % (name, typ))
         out.append("%s %s" % (name, val))
 
-    metric("viperscan_devices_total", "Devices found in the last scan.", len(devices))
-    metric("viperscan_devices_online", "Devices that answered ICMP in the last scan.", online)
-    metric("viperscan_devices_new", "Devices first seen on this network in the last scan.", newc)
-    metric("viperscan_devices_flagged", "Devices carrying at least one alert flag.", flagged)
-    metric("viperscan_open_ports_total", "Open ports across all devices.", ports)
-    metric("viperscan_scanning", "1 while a scan is in progress, else 0.", 1 if scanning else 0)
-    metric("viperscan_last_scan_timestamp_seconds", "Unix time of the last completed scan.", int(last))
+    metric("k9_devices_total", "Devices found in the last scan.", len(devices))
+    metric("k9_devices_online", "Devices that answered ICMP in the last scan.", online)
+    metric("k9_devices_new", "Devices first seen on this network in the last scan.", newc)
+    metric("k9_devices_flagged", "Devices carrying at least one alert flag.", flagged)
+    metric("k9_open_ports_total", "Open ports across all devices.", ports)
+    metric("k9_scanning", "1 while a scan is in progress, else 0.", 1 if scanning else 0)
+    metric("k9_last_scan_timestamp_seconds", "Unix time of the last completed scan.", int(last))
     if isinstance(meta.get("elapsed"), (int, float)):
-        metric("viperscan_scan_duration_seconds", "Duration of the last scan, seconds.", round(meta["elapsed"], 2))
+        metric("k9_scan_duration_seconds", "Duration of the last scan, seconds.", round(meta["elapsed"], 2))
     if isinstance(meta.get("scanned"), int):
-        metric("viperscan_scanned_addresses", "Addresses probed in the last scan.", meta["scanned"])
-    out.append("# HELP viperscan_devices_by_flag Devices per flag.")
-    out.append("# TYPE viperscan_devices_by_flag gauge")
+        metric("k9_scanned_addresses", "Addresses probed in the last scan.", meta["scanned"])
+    out.append("# HELP k9_devices_by_flag Devices per flag.")
+    out.append("# TYPE k9_devices_by_flag gauge")
     for f, n in sorted(by_flag.items()):
-        out.append('viperscan_devices_by_flag{flag="%s"} %d' % (_prom_escape(f), n))
-    out.append("# HELP viperscan_devices_by_category Devices per category.")
-    out.append("# TYPE viperscan_devices_by_category gauge")
+        out.append('k9_devices_by_flag{flag="%s"} %d' % (_prom_escape(f), n))
+    out.append("# HELP k9_devices_by_category Devices per category.")
+    out.append("# TYPE k9_devices_by_category gauge")
     for c, n in sorted(by_cat.items()):
-        out.append('viperscan_devices_by_category{category="%s"} %d' % (_prom_escape(c), n))
+        out.append('k9_devices_by_category{category="%s"} %d' % (_prom_escape(c), n))
     return "\n".join(out) + "\n"
 _RESCAN = threading.Event()
 
@@ -386,7 +386,7 @@ def _scan_forever(args):
                     _STATE["events"] = scope.read_events(60)
             except Exception:
                 pass
-            # Feed ViperScan's own behavioral engine — it learns each device's
+            # Feed K-9's own behavioral engine — it learns each device's
             # normal over time (Device DNA + Immune System anomalies).
             try:
                 behavior.record(payload["devices"])
@@ -637,7 +637,7 @@ class Handler(BaseHTTPRequestHandler):
             scope.log_engagement("export", "", f"{len(_STATE['devices'])} devices")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Disposition", 'attachment; filename="viperscan-export.json"')
+            self.send_header("Content-Disposition", 'attachment; filename="k9-export.json"')
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -661,7 +661,7 @@ class Handler(BaseHTTPRequestHandler):
             scope.log_engagement("history_export", "", f"{len(devices)} devices")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Disposition", 'attachment; filename="viperscan-history.json"')
+            self.send_header("Content-Disposition", 'attachment; filename="k9-history.json"')
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -807,8 +807,8 @@ def serve(args) -> int:
     try:
         httpd = ThreadingHTTPServer((bind, args.port), Handler)
     except OSError as exc:
-        print(f"\n  ViperScan: can't bind port {args.port} ({exc.strerror}).")
-        print(f"  Another ViperScan may already be running — open http://localhost:{args.port}")
+        print(f"\n  K-9: can't bind port {args.port} ({exc.strerror}).")
+        print(f"  Another K-9 may already be running — open http://localhost:{args.port}")
         print(f"  or free it:  sudo fuser -k {args.port}/tcp   (or use --reload, or --port {args.port + 1})\n")
         return 1
 
@@ -825,13 +825,13 @@ def serve(args) -> int:
     if reload_on:
         threading.Thread(target=_watch_and_reload, daemon=True).start()
     url = f"http://localhost:{args.port}"
-    print(f"\n  ViperScan dashboard live → {url}")
+    print(f"\n  K-9 dashboard live → {url}")
     if reload_on:
         print("  --reload: editing source auto-restarts the server AND auto-refreshes your browser.")
     print("  Ctrl-C to stop.\n")
 
-    if getattr(args, "open", True) and not os.environ.get("VIPERSCAN_RELOADED"):
-        # ViperScan needs raw-socket/ARP privileges, so it's normally started with
+    if getattr(args, "open", True) and not os.environ.get("K9_RELOADED"):
+        # K-9 needs raw-socket/ARP privileges, so it's normally started with
         # sudo. Launching a GUI browser as root fails — Chromium-based browsers
         # (Edge/Chrome/Chromium) refuse with "Running as root without --no-sandbox
         # is not supported" (the zygote_host error). So when we're root, re-open
@@ -861,7 +861,7 @@ def serve(args) -> int:
 PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ViperScan — network device awareness</title>
+<title>K-9 — network device awareness</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="shortcut icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1142,7 +1142,7 @@ PAGE = r"""<!DOCTYPE html>
 </style></head>
 <body>
 <header>
-  <span class="brand"><img class="logomark" src="/logo.png" alt="ViperShard"><span class="logo">ViperScan</span></span>
+  <span class="brand"><img class="logomark" src="/logo.png" alt="K-9"><span class="logo">K-9</span></span>
   <span class="pill" id="net">—</span>
   <span class="spacer"></span>
   <span class="stat"><span class="dot" id="dot"></span><span id="status">starting…</span></span>
@@ -1228,7 +1228,7 @@ PAGE = r"""<!DOCTYPE html>
     <div class="m-body" id="panel-body"></div>
   </div>
 </div>
-<footer>ViperScan · stdlib-only LAN awareness · data stays on this machine</footer>
+<footer>K-9 · stdlib-only LAN awareness · data stays on this machine</footer>
 <script>
 let FILTER="all", DEV=[], BUSY=false, CURRENT_CIDR="", LAST_EVENTS=null;
 const SVGP={
@@ -1328,7 +1328,7 @@ function renderTimeline(r){
   const ent=(r&&r.entries)||[];
   h+= ent.length
     ? '<div class="tline">'+ent.slice().reverse().map(e=>'<div class="tlrow sev-'+esc(e.sev||'info')+'"><span class="tlts">'+esc(e.ts||'')+'</span><span class="tllbl">'+esc(e.label||'')+'</span></div>').join('')+'</div>'
-    : '<div class="muted">No recorded events yet — history builds as ViperScan keeps scanning.</div>';
+    : '<div class="muted">No recorded events yet — history builds as K-9 keeps scanning.</div>';
   el.innerHTML=h;
 }
 function loadHistory(body){
@@ -1590,7 +1590,7 @@ function renderLocate(r,ip){
     if(L.hint==="cant_tune"){
       hd.style.display=""; hd.className="lochint bad";
       hd.innerHTML='⚠ <b>The monitor radio is busy — can\'t set channels.</b> Something re-claimed the adapter (NetworkManager brought it back up). '+
-        'Press <b>Stop</b>, then <b>Find</b> again — ViperScan now frees the radio on each start. If it persists, toggle <b>Monitor Mode</b> off then on.';
+        'Press <b>Stop</b>, then <b>Find</b> again — K-9 now frees the radio on each start. If it persists, toggle <b>Monitor Mode</b> off then on.';
     } else if(L.hint==="no_frames"){
       hd.style.display=""; hd.className="lochint bad";
       hd.innerHTML='⚠ <b>No 802.11 frames captured.</b> The sniffer adapter isn\'t actually in monitor mode, or it\'s the wrong adapter. '+
@@ -1645,7 +1645,7 @@ function renderActivity(r){
   if((r.live_ports||[]).length)h+='<div class="k">Live now</div><div class="v">'+r.live_ports.join(", ")+'</div>';
   if((r.roles||[]).length)h+='<div class="k">Acts as</div><div class="v">'+r.roles.map(esc).join(" · ")+'</div>';
   h+='</div>';
-  h+='<div class="muted" style="margin-top:8px">Point-in-time. ViperScan sees what this device advertises and its live state — not the private traffic between it and the internet (that needs router-level capture).</div>';
+  h+='<div class="muted" style="margin-top:8px">Point-in-time. K-9 sees what this device advertises and its live state — not the private traffic between it and the internet (that needs router-level capture).</div>';
   if((r.events||[]).length)h+='<details style="margin-top:9px"><summary>recent events</summary>'+r.events.map(e=>'<div class="muted">'+esc(e.ts)+' — '+esc((e.type||"").replace(/_/g," "))+' '+esc(e.detail||"")+'</div>').join('')+'</details>';
   body.innerHTML=h;
 }
@@ -1753,7 +1753,7 @@ function authorizeNet(cidr){ api("/api/scope?add="+encodeURIComponent(cidr)).the
   const f=document.getElementById("sec-findings"); if(f&&f.innerHTML.indexOf("outside your authorised")>-1)f.innerHTML='<h4>Findings</h4><div class="muted">✓ '+esc(cidr)+' authorised — click Deep audit again.</div>';
 }); }
 function openPanel(kind){
-  document.getElementById("panel-title").textContent={scope:"Authorised scope",alerts:"Monitoring alerts",activity:"Engagement log",history:"History — timeline & anomalies",selfcheck:"System check — live data proof",intel:"Behavioral intelligence — what ViperScan has learned"}[kind]||"Panel";
+  document.getElementById("panel-title").textContent={scope:"Authorised scope",alerts:"Monitoring alerts",activity:"Engagement log",history:"History — timeline & anomalies",selfcheck:"System check — live data proof",intel:"Behavioral intelligence — what K-9 has learned"}[kind]||"Panel";
   const body=document.getElementById("panel-body"); body.innerHTML='<div class="muted"><span class="spin"></span>loading…</div>';
   document.getElementById("panel").classList.add("on");
   if(kind==="scope")loadScope(body);
@@ -1771,7 +1771,7 @@ function huntDown(ip){
 function loadIntel(body){
   api("/api/intel").then(r=>{
     if(!r){body.innerHTML='<div class="muted">no intel yet</div>';return;}
-    let h='<div class="muted scd" style="margin-bottom:10px">ViperScan\'s own behavioral engine — it learns each device\'s normal over time, no external tools. '+
+    let h='<div class="muted scd" style="margin-bottom:10px">K-9\'s own behavioral engine — it learns each device\'s normal over time, no external tools. '+
       'Tracking <b>'+r.tracked+'</b> devices over <b>'+r.observations+'</b> observations. The longer it runs, the smarter it gets.</div>';
     const an=r.anomalies||[];
     h+='<div class="sec"><h4>'+IC("alert")+' Immune system — deviations from normal ('+an.length+')</h4>';
@@ -1979,7 +1979,7 @@ function snifferError(r){
     : ("Monitor mode error: "+(e||"unknown"));
   flash(msg);
   const b=document.getElementById("snifferbtn");
-  if(r.fix){ if(b)b.title="Manual fix — "+r.fix; console.warn("ViperScan monitor-mode manual fix:\n"+r.fix); }
+  if(r.fix){ if(b)b.title="Manual fix — "+r.fix; console.warn("K-9 monitor-mode manual fix:\n"+r.fix); }
 }
 function toggleSniffer(){
   const b=document.getElementById("snifferbtn"); if(b)b.disabled=true;
@@ -2142,7 +2142,7 @@ async function poll(){
   const ev=s.events||[];
   const ac=document.getElementById("alertcount"); if(ac)ac.textContent=ev.length;
   if(LAST_EVENTS!==null && ev.length>LAST_EVENTS && window.Notification && Notification.permission==="granted"){
-    const top=ev[0]; new Notification("ViperScan: network change",{body:top?(top.type.replace(/_/g," ")+" — "+top.ip+" "+top.detail):""});
+    const top=ev[0]; new Notification("K-9: network change",{body:top?(top.type.replace(/_/g," ")+" — "+top.ip+" "+top.detail):""});
   }
   LAST_EVENTS=ev.length;
   syncControls(s.config);

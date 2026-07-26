@@ -1,6 +1,6 @@
 """System self-check — prove every subsystem is hitting REAL data.
 
-ViperScan has no simulation/spoof path (unlike, say, an SDR demo mode): every
+K-9 has no simulation/spoof path (unlike, say, an SDR demo mode): every
 number comes from a live socket or a kernel table. This module exercises each
 component against the actual network and reports concrete evidence — a real
 ping RTT, real MAC addresses from the kernel ARP table, a real negotiated TLS
@@ -157,7 +157,7 @@ def run() -> dict:
 
 def run_cli() -> int:
     res = run()
-    print("\n  ViperScan — system self-check (all data is live, nothing simulated)\n")
+    print("\n  K-9 — system self-check (all data is live, nothing simulated)\n")
     for c in res["checks"]:
         mark = "\033[92m PASS \033[0m" if c["ok"] else "\033[93m INFO \033[0m"
         print(f"  [{mark}] {c['name']}")

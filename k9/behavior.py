@@ -1,6 +1,6 @@
-"""ViperScan's own engine — a passive BEHAVIORAL OBSERVATION core.
+"""K-9's own engine — a passive BEHAVIORAL OBSERVATION core.
 
-This is not a wrapper around any tool. It is ViperScan's "senses": every scan,
+This is not a wrapper around any tool. It is K-9's "senses": every scan,
 keep-alive and activity probe feeds a per-device time-series here, and from that
 raw behavior the engine computes things no MAC lookup or nmap scan can:
 
@@ -12,8 +12,8 @@ raw behavior the engine computes things no MAC lookup or nmap scan can:
                       quiet device suddenly busy).
   * (Bug Hunter / Spatial Radar layer on the same profiles, adding RF + motion.)
 
-Pure stdlib. Persists a rolling window to VIPERSCAN_HOME so the baseline survives
-restarts and gets smarter the longer ViperScan runs.
+Pure stdlib. Persists a rolling window to K9_HOME so the baseline survives
+restarts and gets smarter the longer K-9 runs.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ _MIN_BASELINE = 6       # observations before we trust a baseline
 
 
 def _store_path() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     try:
         os.makedirs(base, exist_ok=True)
     except OSError:
@@ -231,7 +231,7 @@ def _anomalies(rec: dict, prof: dict) -> list:
 
 def intel(devices: list) -> dict:
     """The whole behavioral picture for the dashboard: per-device DNA + profile +
-    anomalies, plus a network-level summary of what ViperScan has learned."""
+    anomalies, plus a network-level summary of what K-9 has learned."""
     with _LOCK:
         store = _load()
     by_key = {}

@@ -572,7 +572,7 @@ def rssi_pct(rssi: float) -> int:
 # --------------------------------------------------------------- live JSON bridge
 
 def _locate_path() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     os.makedirs(base, exist_ok=True)
     return os.path.join(base, "locate.json")
 
@@ -648,18 +648,18 @@ def run_cli(args) -> int:
     mac, label = _resolve_target(target)
     cap = capability()
     if not mac:
-        print(f"ViperScan: no MAC found for '{target}'. Pass the MAC directly, or run a scan first.", file=sys.stderr)
+        print(f"K-9: no MAC found for '{target}'. Pass the MAC directly, or run a scan first.", file=sys.stderr)
         return 1
     if not cap["iw"]:
-        print("ViperScan locate needs the `iw` tool — install it (e.g. `sudo apt install iw`).", file=sys.stderr)
+        print("K-9 locate needs the `iw` tool — install it (e.g. `sudo apt install iw`).", file=sys.stderr)
         return 1
     if not cap["root"]:
-        print("ViperScan locate needs root for monitor mode. Re-run with sudo, e.g.:", file=sys.stderr)
+        print("K-9 locate needs root for monitor mode. Re-run with sudo, e.g.:", file=sys.stderr)
         print(f"   sudo python3 {sys.argv[0]} --locate {target}", file=sys.stderr)
         return 1
     iface = args.iface or pick_monitor_iface(allow_primary=bool(args.iface))
     if not iface:
-        print("ViperScan locate: no DEDICATED monitor adapter found. Plug in your A8000 "
+        print("K-9 locate: no DEDICATED monitor adapter found. Plug in your A8000 "
               "(or pass --iface <dev> to force your built-in Wi-Fi, which will drop your internet).",
               file=sys.stderr)
         return 1
@@ -674,7 +674,7 @@ def run_cli(args) -> int:
         print(f"  Preparing {iface} (monitor mode via dedicated VIF)…")
         capiface = set_monitor(iface)
         if not capiface:
-            print(f"ViperScan locate: couldn't engage monitor mode on {iface}: "
+            print(f"K-9 locate: couldn't engage monitor mode on {iface}: "
                   f"{_LAST_MON_ERR or 'driver rejected it'}.", file=sys.stderr)
             _run(["nmcli", "device", "set", iface, "managed", "yes"])
             return 1
@@ -825,7 +825,7 @@ _SURVEY_24_FILL = [2, 3, 4, 5, 7, 8, 9, 10, 13]
 # re-locating that same device later goes STRAIGHT to its channel instead of
 # blind-sweeping (the #1 reason re-finding a known device was hit-and-miss).
 def _chan_store_path() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     try:
         os.makedirs(base, exist_ok=True)
     except OSError:
@@ -1133,7 +1133,7 @@ class LocateSession:
             self.error = "no_adapter"
             return {"ok": False, "error": "no_adapter",
                     "reason": "no dedicated monitor adapter detected — plug in your A8000 "
-                              "(ViperScan won't use your main Wi-Fi for monitor mode, it'd drop your internet)"}
+                              "(K-9 won't use your main Wi-Fi for monitor mode, it'd drop your internet)"}
         # ALWAYS do a clean engage — never blindly reuse an existing vif. A
         # lingering vsmon0 may have a busy radio (NetworkManager brought the base
         # adapter back up), which makes set_channel fail on every channel and

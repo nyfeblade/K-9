@@ -148,7 +148,7 @@ def grab_http(ip: str, port: int, timeout: float = 1.2) -> dict[str, str]:
             sock = ctx.wrap_socket(sock, server_hostname=ip)
         req = (
             f"GET / HTTP/1.1\r\nHost: {ip}\r\n"
-            "User-Agent: ViperScan\r\nAccept: */*\r\nConnection: close\r\n\r\n"
+            "User-Agent: K-9\r\nAccept: */*\r\nConnection: close\r\n\r\n"
         ).encode()
         sock.sendall(req)
         while len(raw) < 16384:
@@ -188,7 +188,7 @@ def grab_rtsp(ip: str, port: int = 554, timeout: float = 1.2) -> str:
         sock.settimeout(timeout)
         sock.sendall(
             f"OPTIONS rtsp://{ip}:{port} RTSP/1.0\r\nCSeq: 1\r\n"
-            "User-Agent: ViperScan\r\n\r\n".encode()
+            "User-Agent: K-9\r\n\r\n".encode()
         )
         data = sock.recv(2048).decode("latin-1", "replace")
         m = re.search(r"^Server:\s*(.+)$", data, re.I | re.M)
@@ -456,7 +456,7 @@ def snmp_writable(ip: str, communities=("private", "public"), timeout: float = 1
 def mqtt_open(ip: str, ports=(1883, 8883), timeout: float = 2.0) -> dict:
     """Send an MQTT CONNECT and read the CONNACK. Return-code 0 = the broker
     accepted us with NO authentication (anyone can pub/sub)."""
-    payload = b"\x00\x09viperscan"               # client-id
+    payload = b"\x00\x09k9"               # client-id
     varhdr = b"\x00\x04MQTT\x04\x02\x00\x3c"     # protocol MQTT v3.1.1, clean session
     body = varhdr + payload
     pkt = b"\x10" + bytes([len(body)]) + body
@@ -515,7 +515,7 @@ def udp_scan(ip: str, timeout: float = 0.8, workers: int = 10) -> dict:
     probes = [
         (53, "DNS (udp)", b"\x12\x34\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x01"),
         (123, "NTP (udp)", b"\x1b" + b"\x00" * 47),
-        (69, "TFTP (udp)", b"\x00\x01viperscan\x00octet\x00"),
+        (69, "TFTP (udp)", b"\x00\x01k9\x00octet\x00"),
         (161, "SNMP (udp)", _snmp_get("1.3.6.1.2.1.1.1.0", "public", 1)),
         (5683, "CoAP (udp)", b"\x40\x01\x12\x34\xbb.well-known\x04core"),
     ]

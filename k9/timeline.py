@@ -1,6 +1,6 @@
 """Per-device history timeline + anomaly surfacing.
 
-Read-only: it reconstructs and presents what ViperScan already recorded across
+Read-only: it reconstructs and presents what K-9 already recorded across
 scans — the monitoring event log (events.jsonl: new_device / new_ports /
 internet_exposure / device_left) plus each device's persisted first/last-seen
 and per-port open history. No new data is collected here; this is the "when did
@@ -152,7 +152,7 @@ def history_export(devices, events, now=None):
         })
     return {
         "generated": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
-        "tool": "ViperScan", "device_count": len(devs),
+        "tool": "K-9", "device_count": len(devs),
         "anomalies": anomalies(devices, events, now),
         "devices": devs,
         "events": [e for e in events if e.get("ts")][-2000:],

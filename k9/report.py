@@ -63,7 +63,7 @@ def style_flag(flag: str) -> str:
 # --------------------------------------------------------------- persistence
 
 def _store_path() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     os.makedirs(base, exist_ok=True)
     return os.path.join(base, "known_devices.json")
 
@@ -242,7 +242,7 @@ def render(hosts: list[Host], meta: dict) -> str:
     width = 64
     lines.append("")
     lines.append(bold(cyan("  ╔" + "═" * width + "╗")))
-    title = "ViperScan — network device awareness"
+    title = "K-9 — network device awareness"
     lines.append(bold(cyan("  ║")) + bold(f"  {title}".ljust(width)) + bold(cyan("║")))
     lines.append(bold(cyan("  ╚" + "═" * width + "╝")))
     lines.append("")

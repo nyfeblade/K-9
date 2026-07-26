@@ -12,8 +12,8 @@ dist/
 venv/
 env/
 
-# ViperScan runtime data (scans, scope, engagement, config)
-.viperscan/
+# K-9 runtime data (scans, scope, engagement, config)
+.k9/
 .phantom/
 
 # Editor / OS cruft

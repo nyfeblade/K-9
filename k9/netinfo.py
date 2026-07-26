@@ -146,15 +146,15 @@ def resolve_targets(cidr: str | None, info: NetInfo) -> tuple[ipaddress.IPv4Netw
     elif info.primary is not None:
         net = info.primary.network
     else:
-        raise SystemExit("ViperScan: could not determine a network to scan; pass one, e.g. --net 192.168.1.0/24")
+        raise SystemExit("K-9: could not determine a network to scan; pass one, e.g. --net 192.168.1.0/24")
 
     if not isinstance(net, ipaddress.IPv4Network):
-        raise SystemExit("ViperScan: only IPv4 networks are supported as scan targets.")
+        raise SystemExit("K-9: only IPv4 networks are supported as scan targets.")
 
     hosts = list(net.hosts()) if net.prefixlen < 31 else list(net)
     if len(hosts) > 4096:
         print(
-            f"ViperScan: {net} has {len(hosts)} hosts; scanning the first 4096. "
+            f"K-9: {net} has {len(hosts)} hosts; scanning the first 4096. "
             "Narrow it with --net for a focused sweep.",
             file=sys.stderr,
         )

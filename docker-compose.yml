@@ -1,14 +1,14 @@
-# docker compose up  →  ViperScan dashboard on http://localhost:8731
+# docker compose up  →  K-9 dashboard on http://localhost:8731
 # host networking is required so it can actually see your LAN (ARP/ping discovery).
 services:
-  viperscan:
+  k9:
     build: .
-    image: viperscan
+    image: k9
     network_mode: host          # required — LAN discovery does not work bridged
     command: ["--web", "--bind", "0.0.0.0"]
     volumes:
-      - viperscan-data:/data    # persist scope / known devices / config
+      - k9-data:/data    # persist scope / known devices / config
     restart: unless-stopped
 
 volumes:
-  viperscan-data:
+  k9-data:

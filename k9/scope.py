@@ -7,7 +7,7 @@ anywhere — it's no more than your OS's "devices on this network" view — but 
 that isn't inside an authorised network. That keeps a worldwide-distributed
 build white-hat by construction and gives you an audit trail.
 
-Three small JSON stores under ~/.viperscan/:
+Three small JSON stores under ~/.k9/:
   scope.json        — authorised CIDRs
   engagement.jsonl  — every active action you took (what / where / when)
   events.jsonl      — monitoring alerts (new device, new port, new exposure…)
@@ -22,7 +22,7 @@ import time
 
 
 def _base() -> str:
-    base = os.environ.get("VIPERSCAN_HOME") or os.path.expanduser("~/.viperscan")
+    base = os.environ.get("K9_HOME") or os.path.expanduser("~/.k9")
     os.makedirs(base, exist_ok=True)
     return base
 

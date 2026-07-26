@@ -3,13 +3,13 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "viperscan"
+name = "k9"
 version = "1.0.0"
 description = "Zero-dependency, pure-Python LAN scanner — find every device on your network and flag the ones to look at twice."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "ViperShard" }]
+authors = [{ name = "Nyfe" }]
 keywords = [
   "network-scanner", "lan-scanner", "network-security", "network-discovery",
   "device-discovery", "iot-security", "homelab", "security-tools",
@@ -25,14 +25,14 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ViperShard/ViperScan"
-Repository = "https://github.com/ViperShard/ViperScan"
-Issues = "https://github.com/ViperShard/ViperScan/issues"
+Homepage = "https://github.com/nyfeblade/K-9"
+Repository = "https://github.com/nyfeblade/K-9"
+Issues = "https://github.com/nyfeblade/K-9/issues"
 
-# This is what creates the `viperscan` command on your PATH after `pipx install .`
+# This is what creates the `k9` command on your PATH after `pipx install .`
 [project.scripts]
-viperscan = "viperscan.cli:main"
+k9 = "k9.cli:main"
 
 [tool.setuptools]
-packages = ["viperscan"]
-py-modules = []                  # the root viperscan.py is the no-install launcher, NOT a packaged module
+packages = ["k9"]
+py-modules = []                  # the root k9.py is the no-install launcher, NOT a packaged module

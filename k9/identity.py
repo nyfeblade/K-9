@@ -2,7 +2,7 @@
 rescans and restarts.
 
 Annotations live inside the same per-network device store report.py already
-maintains (~/.viperscan/known_devices.json), attached to each device record by
+maintains (~/.k9/known_devices.json), attached to each device record by
 its MAC (falling back to IP). apply_memory() preserves these fields when it
 refreshes a record, so a device you renamed stays renamed forever.
 """

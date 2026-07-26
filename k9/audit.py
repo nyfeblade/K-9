@@ -7,7 +7,7 @@ Two tiers, by network footprint:
     - cleartext-HTTP admin detection
     - TLS certificate inspection (self-signed / expired) via the openssl CLI
     - known-CVE hinting from a curated, offline device→CVE map
-    - turning ViperScan's own flags into findings
+    - turning K-9's own flags into findings
     - internet-exposure (from the cached UPnP port-forward map, if any)
 
   DEEP   (only when you press "Deep audit" — these get logged by targets)
@@ -355,7 +355,7 @@ def ftp_anonymous(ip: str, timeout: float = 2.0) -> list:
         if not s.recv(256).startswith(b"220"):
             return []
         s.sendall(b"USER anonymous\r\n"); s.recv(256)
-        s.sendall(b"PASS viperscan@example.com\r\n")
+        s.sendall(b"PASS k9@example.com\r\n")
         resp = s.recv(256).decode("latin-1", "replace")
         if resp.startswith("230"):
             return [_finding("high", "Anonymous FTP is enabled",
@@ -384,7 +384,7 @@ def _md5(s: str) -> str:
 
 
 def digest_header(user, pw, realm, nonce, qop, opaque, uri="/", method="GET",
-                  nc="00000001", cnonce="viperscan"):
+                  nc="00000001", cnonce="k9"):
     """Build an RFC 2617 Digest Authorization header value."""
     ha1, ha2 = _md5(f"{user}:{realm}:{pw}"), _md5(f"{method}:{uri}")
     if qop:
@@ -479,7 +479,7 @@ def lockout_probe(ip: str, panels: list, timeout: float = 2.0, attempts: int = 5
     statuses = []
     for i in range(attempts):
         r = probe.http_probe(ip, panel["port"], panel["scheme"], "/", timeout,
-                             auth=("admin", f"ViperScanWrongPw{i}"))
+                             auth=("admin", f"K9WrongPw{i}"))
         if r is None or r["status"] in (403, 429, 503):
             return None  # it started blocking → lockout/throttle exists (good)
         statuses.append(r["status"])
@@ -550,7 +550,7 @@ _FLAG_FINDINGS = {
     "INSECURE": ("high", "Telnet (cleartext) is open", "Telnet sends everything — including passwords — in the clear and is a top IoT-botnet entry point.", "Disable Telnet; use SSH if remote access is needed."),
     "REMOTE": ("medium", "Remote-control service exposed", "RDP/VNC/ADB is reachable on the LAN.", "Restrict to trusted hosts and require strong auth."),
     "HIDDEN": ("info", "Host ignores ping but answers ARP", "Quiet device — not necessarily a problem, but worth identifying.", "Use Deep audit to fingerprint it."),
-    "UNKNOWN": ("low", "Device could not be identified", "ViperScan couldn't determine what this is.", "Use Deep audit (nmap) or check the router's DHCP lease table."),
+    "UNKNOWN": ("low", "Device could not be identified", "K-9 couldn't determine what this is.", "Use Deep audit (nmap) or check the router's DHCP lease table."),
     "ISP-MGMT": ("low", "Carrier remote-management port open", "TR-069 lets your ISP manage the device; it has been abused in attacks.", "Usually can't be changed on ISP gear; be aware of it."),
 }
 
@@ -740,7 +740,7 @@ def audit(ip: str, device: dict, *, deep: bool = False, creds: bool = False,
             else:
                 findings.append(_finding(
                     "low", f"{len(forbidden)} forbidden panel(s) found — bypass tool missing",
-                    "ViperScan found 401/403 panel(s) here but nomore403 isn't installed, so it "
+                    "K-9 found 401/403 panel(s) here but nomore403 isn't installed, so it "
                     "couldn't auto-test whether the Forbidden response can be circumvented.",
                     "Install nomore403 so deep audits automatically attempt 403/401 bypasses."))
         # external intel + bypass tools — squeeze every drop from this device

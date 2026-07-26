@@ -1,4 +1,4 @@
-"""ViperScan — know every device on the network you're sitting on.
+"""K-9 — know every device on the network you're sitting on.
 
 A zero-dependency (stdlib-only) LAN scanner that discovers every device on the
 local network, identifies its vendor and likely type, and flags the ones worth
@@ -9,4 +9,4 @@ Drop it on any machine with python3 and run it. No pip install required.
 """
 
 __version__ = "1.0.0"
-__app__ = "ViperScan"
+__app__ = "K-9"

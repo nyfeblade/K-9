@@ -1,13 +1,13 @@
 """403/401 access-control bypass via nomore403 (auto-run when a panel forbids us).
 
-When a device's admin panel answers 403/401, ViperScan can hand the URL to the
+When a device's admin panel answers 403/401, K-9 can hand the URL to the
 user's installed nomore403 binary, which tries dozens of well-known bypass
 techniques (header injection, path/case tricks, verb tampering, unicode, etc.)
 and reports any that slip past the access control. We parse its JSON-Lines
 output defensively (field names vary by version) and surface confirmed bypasses
 as findings.
 
-Authorized-testing tool — gated behind ViperScan's authorization scope and only
+Authorized-testing tool — gated behind K-9's authorization scope and only
 run as part of an explicit Deep audit, exactly like the credential check.
 """
 
@@ -24,7 +24,7 @@ import subprocess
 def _user_homes() -> list:
     """Candidate home directories. Crucially handles running under sudo: there
     `os.path.expanduser('~')` is /root, but the binary lives in the invoking
-    user's home — so we resolve $SUDO_USER's home (and ViperScan's data home)."""
+    user's home — so we resolve $SUDO_USER's home (and K-9's data home)."""
     homes = []
     su = os.environ.get("SUDO_USER")
     if su and su != "root":
@@ -33,7 +33,7 @@ def _user_homes() -> list:
             homes.append(pwd.getpwnam(su).pw_dir)
         except (KeyError, ImportError):
             pass
-    vh = os.environ.get("VIPERSCAN_HOME")        # normally <home>/.viperscan
+    vh = os.environ.get("K9_HOME")        # normally <home>/.k9
     if vh:
         homes.append(os.path.dirname(vh.rstrip("/")))
     homes.append(os.path.expanduser("~"))
@@ -155,7 +155,7 @@ def run(url: str, timeout: float = 90.0) -> dict:
     timed_out = False
     err = ""
     stdout = ""
-    out_file = os.path.join("/tmp", "viperscan_nm_%x.out" % (abs(hash(url)) % (1 << 28)))
+    out_file = os.path.join("/tmp", "k9_nm_%x.out" % (abs(hash(url)) % (1 << 28)))
     try:
         with open(out_file, "w", encoding="utf-8", errors="replace") as ofh:
             # stdin=DEVNULL is REQUIRED — nomore403 hangs forever if stdin isn't a
@@ -235,7 +235,7 @@ def replay(item: dict, timeout: float = 15.0) -> dict:
         item["replay_error"] = "curl not installed"
         return item
     vid = _view_id((url or curl_cmd) + "|" + item.get("technique", ""))
-    body_path = os.path.join("/tmp", "viperscan_bypass_%s.bin" % vid)
+    body_path = os.path.join("/tmp", "k9_bypass_%s.bin" % vid)
 
     args = None
     if curl_cmd.startswith("curl"):
