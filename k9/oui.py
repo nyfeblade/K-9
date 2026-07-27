@@ -17,13 +17,29 @@ from __future__ import annotations
 import os
 import re
 
-# System databases we know how to parse, in order of preference.
+# System databases we know how to parse, in order of preference. Cross-platform:
+# Linux distro paths, then macOS (Homebrew / Wireshark.app), then Windows
+# (Nmap / Wireshark installers), then a database bundled with K-9 itself.
 _DB_PATHS = [
+    # ---- Linux ----
     "/usr/share/nmap/nmap-mac-prefixes",
     "/usr/share/wireshark/manuf",
     "/usr/share/ieee-data/oui.txt",
     "/var/lib/ieee-data/oui.txt",
     "/usr/share/arp-scan/ieee-oui.txt",
+    # ---- macOS (Homebrew: Apple Silicon then Intel; plus Wireshark.app) ----
+    "/opt/homebrew/share/nmap/nmap-mac-prefixes",
+    "/usr/local/share/nmap/nmap-mac-prefixes",
+    "/opt/homebrew/share/wireshark/manuf",
+    "/usr/local/share/wireshark/manuf",
+    "/Applications/Wireshark.app/Contents/Resources/share/wireshark/manuf",
+    # ---- Windows (default Nmap / Wireshark install dirs) ----
+    r"C:\Program Files (x86)\Nmap\nmap-mac-prefixes",
+    r"C:\Program Files\Nmap\nmap-mac-prefixes",
+    r"C:\Program Files\Wireshark\manuf",
+    # ---- bundled with K-9 (optional; drop a file here for offline coverage
+    #      on machines with no system DB, e.g. a stock Mac without Homebrew) ----
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "oui-prefixes.txt"),
 ]
 
 # Always-on fallback: vendors that matter for *flagging*, keyed by 6-hex OUI.

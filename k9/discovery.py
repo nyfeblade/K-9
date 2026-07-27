@@ -17,13 +17,14 @@ add a true ARP broadcast sweep for completeness.
 from __future__ import annotations
 
 import os
-import platform
 import re
 import socket
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
+
+from . import sysnet
 
 
 @dataclass
@@ -61,17 +62,9 @@ class Host:
         return oui.is_randomized(self.mac)
 
 
-_PING_COUNT = "-c"
-_PING_TIMEOUT = "-W"  # seconds on Linux
-_IS_MAC = platform.system() == "Darwin"
-
-
 def _ping(ip: str, timeout: float) -> tuple[bool, float | None]:
     """Return (alive, rtt_ms). Uses the system ping; no privileges needed."""
-    if _IS_MAC:
-        cmd = ["ping", "-c", "1", "-t", str(max(1, int(timeout))), "-W", str(int(timeout * 1000)), ip]
-    else:
-        cmd = ["ping", "-c", "1", "-W", str(int(max(1, round(timeout)))), "-n", ip]
+    cmd = sysnet.ping_command(ip, timeout)
     try:
         out = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 1.5, check=False)
     except (OSError, subprocess.TimeoutExpired):
@@ -101,28 +94,8 @@ def _tcp_knock(ip: str, ports: tuple[int, ...], timeout: float) -> bool:
 
 
 def read_arp_table() -> dict[str, str]:
-    """IP -> MAC from the kernel neighbour table (`ip neigh`), with a /proc fallback."""
-    table: dict[str, str] = {}
-    try:
-        out = subprocess.run(["ip", "neigh"], capture_output=True, text=True, timeout=5, check=False).stdout
-        for line in out.splitlines():
-            m = re.match(r"^(\d+\.\d+\.\d+\.\d+)\s+dev\s+\S+\s+lladdr\s+([0-9a-fA-F:]{17})", line)
-            if m:
-                mac = m.group(2).lower()
-                if mac != "00:00:00:00:00:00":
-                    table[m.group(1)] = mac
-    except (OSError, subprocess.TimeoutExpired):
-        pass
-    if not table:  # /proc/net/arp fallback (older systems / no iproute2)
-        try:
-            with open("/proc/net/arp") as fh:
-                for line in fh.readlines()[1:]:
-                    parts = line.split()
-                    if len(parts) >= 4 and parts[3] != "00:00:00:00:00:00":
-                        table[parts[0]] = parts[3].lower()
-        except OSError:
-            pass
-    return table
+    """IP -> MAC from the OS neighbour table (platform-specific; see sysnet)."""
+    return sysnet.arp_table()
 
 
 def _scapy_arp_sweep(cidr: str, timeout: float) -> dict[str, str]:

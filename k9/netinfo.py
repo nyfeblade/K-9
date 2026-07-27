@@ -1,18 +1,18 @@
 """Local network introspection: which interface, which subnet, who am I.
 
-Everything here is best-effort and degrades gracefully. We prefer the modern
-`ip` tooling on Linux, fall back to parsing /proc, and finally to a UDP-socket
-trick that works on any platform to learn our own primary IP.
+Everything here is best-effort and degrades gracefully. The OS-specific work
+(interface enumeration, gateway, own-IP) lives in :mod:`k9.sysnet` so this stays
+platform-agnostic; if that yields nothing we still synthesise a /24 around our
+own IP so a scan can proceed.
 """
 
 from __future__ import annotations
 
 import ipaddress
-import re
-import socket
-import subprocess
 import sys
 from dataclasses import dataclass, field
+
+from . import sysnet
 
 
 @dataclass
@@ -39,80 +39,13 @@ class NetInfo:
     gateway_mac: str = ""
 
 
-def _run(cmd: list[str]) -> str:
-    try:
-        out = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=5, check=False
-        )
-        return out.stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return ""
-
-
-def _own_ip_via_socket() -> str:
-    """Discover our outbound IP without sending a packet (connect to a UDP
-    socket; the kernel just picks the source address for the route)."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("8.8.8.8", 80))
-        return s.getsockname()[0]
-    except OSError:
-        return "127.0.0.1"
-    finally:
-        s.close()
-
-
-def _parse_ip_addr() -> list[Interface]:
-    """Parse `ip -o addr show` lines into interfaces with IPv4 + prefix."""
-    out = _run(["ip", "-o", "addr", "show"])
-    macs = _parse_ip_link()
-    found: dict[str, Interface] = {}
-    for line in out.splitlines():
-        # e.g. "3: wlp2s0    inet 192.168.1.175/24 brd ... scope global ..."
-        m = re.search(r"^\d+:\s+(\S+)\s+inet\s+(\d+\.\d+\.\d+\.\d+)/(\d+)", line)
-        if not m:
-            continue
-        name, ip, prefix = m.group(1), m.group(2), int(m.group(3))
-        if name == "lo" or ip.startswith("127."):
-            continue
-        found[name] = Interface(name=name, ip=ip, prefixlen=prefix, mac=macs.get(name, ""))
-    return list(found.values())
-
-
-def _parse_ip_link() -> dict[str, str]:
-    """Map interface name -> MAC from `ip -o link`."""
-    out = _run(["ip", "-o", "link", "show"])
-    macs: dict[str, str] = {}
-    for line in out.splitlines():
-        m = re.search(r"^\d+:\s+(\S+?):.*?link/\w+\s+([0-9a-f:]{17})", line)
-        if m:
-            macs[m.group(1)] = m.group(2).lower()
-    return macs
-
-
-def _default_gateway() -> str:
-    out = _run(["ip", "route", "show", "default"])
-    m = re.search(r"default via (\d+\.\d+\.\d+\.\d+)", out)
-    if m:
-        return m.group(1)
-    # /proc fallback
-    try:
-        with open("/proc/net/route") as fh:
-            for line in fh.readlines()[1:]:
-                parts = line.split()
-                if len(parts) > 2 and parts[1] == "00000000":
-                    gw_hex = parts[2]
-                    octets = [int(gw_hex[i:i + 2], 16) for i in (6, 4, 2, 0)]
-                    return ".".join(str(o) for o in octets)
-    except OSError:
-        pass
-    return ""
-
-
 def gather() -> NetInfo:
     info = NetInfo()
-    info.interfaces = _parse_ip_addr()
-    own_ip = _own_ip_via_socket()
+    info.interfaces = [
+        Interface(name=a.name, ip=a.ip, prefixlen=a.prefixlen, mac=a.mac)
+        for a in sysnet.interfaces()
+    ]
+    own_ip = sysnet.own_ip()
 
     # Pick the interface that owns our outbound IP; else the first private one.
     for iface in info.interfaces:
@@ -131,7 +64,7 @@ def gather() -> NetInfo:
         info.primary = Interface(name="?", ip=own_ip, prefixlen=24)
         info.interfaces.append(info.primary)
 
-    info.gateway = _default_gateway()
+    info.gateway = sysnet.default_gateway()
     return info
 
 

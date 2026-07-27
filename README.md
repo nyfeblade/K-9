@@ -22,18 +22,18 @@ required.
 
 ### Platform support
 
-K-9 is **Linux-first** — that's where it's built and tested, and where
-every feature works.
+K-9 runs on Linux and macOS. OS-specific network calls live behind a small
+platform layer (`k9/sysnet.py`); the rest of the codebase is portable stdlib.
 
 | OS | Status |
 |---|---|
 | **Linux** | ✅ Fully supported — all features |
-| **macOS** | ⚠️ Partial — core scan, web dashboard and audit run; vendor ID falls back to the built-in brand map if nmap's OUI DB isn't installed; the **Wi-Fi locator does not work** (it needs Linux `AF_PACKET` + monitor mode) |
-| **Windows** | ❌ Not yet — discovery relies on Linux networking tools (`ip`, `iw`) and `/proc`; needs a port. PRs welcome |
+| **macOS** | ✅ Supported — discovery, fingerprinting, classification, the web dashboard and the security audit all run. Vendor ID uses nmap's OUI DB if present (`brew install nmap`) and otherwise falls back to the built-in brand map. The **Wi-Fi locator is Linux-only** |
+| **Windows** | 🚧 In progress — the ARP table and ping are already handled; interface/gateway enumeration still needs an `ipconfig`/`route` (or `GetAdaptersAddresses`) path before it's usable |
 
-The **Wi-Fi RF locator** (`--locate`) is **Linux-only** by design — it uses a raw
-`AF_PACKET` monitor-mode socket. Everything else is portable in principle; the
-Linux assumptions are just not yet abstracted for macOS/Windows.
+The **Wi-Fi RF locator** (`--locate`) is **Linux-only** by design — it needs a raw
+`AF_PACKET` monitor-mode socket (macOS/Windows would require CoreWLAN / Npcap). On
+those platforms it reports itself as unavailable rather than failing.
 
 ---
 

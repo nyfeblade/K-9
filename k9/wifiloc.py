@@ -31,6 +31,18 @@ import sys
 import threading
 import time
 
+from . import sysnet
+
+# The Wi-Fi hot/cold locator needs a Linux AF_PACKET monitor-mode raw capture
+# plus `iw`/`nmcli`. macOS and Windows have no stdlib equivalent (they'd need
+# CoreWLAN or Npcap), so the whole feature is gated to Linux and reports itself
+# as unsupported elsewhere rather than pretending or crashing.
+_SUPPORTED = sysnet.IS_LINUX
+_UNSUPPORTED_MSG = (
+    "Wi-Fi hot/cold locate is Linux-only (it needs monitor-mode raw capture). "
+    f"Detected {sysnet.SYSTEM}."
+)
+
 ETH_P_ALL = 0x0003
 
 # radiotap standard fields, in it_present bit order, up to the signal field we
@@ -221,6 +233,12 @@ def pick_monitor_iface(prefer_secondary: bool = True, allow_primary: bool = Fals
 
 def capability() -> dict:
     is_root = hasattr(os, "geteuid") and os.geteuid() == 0
+    if not _SUPPORTED:
+        return {
+            "root": is_root, "iw": False, "interfaces": [], "monitor_capable": [],
+            "monitor_ifaces": [], "primary": "", "recommended": None, "ready": False,
+            "supported": False, "reason": _UNSUPPORTED_MSG,
+        }
     have_iw = shutil.which("iw") is not None
     ifaces = list(_iface_phy_map()) if have_iw else []
     caps = monitor_capable_ifaces() if have_iw else []
@@ -236,6 +254,7 @@ def capability() -> dict:
         "primary": primary,
         "recommended": recommended,
         "ready": bool(is_root and have_iw and recommended),
+        "supported": True,
     }
 
 
@@ -417,6 +436,8 @@ def _monitor_fail_reason(diag: dict) -> str:
 def enable_monitor(iface: str | None = None) -> dict:
     """Top-bar one-click: engage monitor mode (dedicated VIF), VERIFIED. On
     failure returns the exact kernel reason + a manual command to try."""
+    if not _SUPPORTED:
+        return {"ok": False, "error": "unsupported_os", "reason": _UNSUPPORTED_MSG}
     if not (hasattr(os, "geteuid") and os.geteuid() == 0):
         return {"ok": False, "error": "needs_root"}
     if shutil.which("iw") is None:
@@ -644,6 +665,9 @@ def _live_meter(iface, mac, label, fixed_channel=None):
 
 
 def run_cli(args) -> int:
+    if not _SUPPORTED:
+        print(f"K-9: {_UNSUPPORTED_MSG}", file=sys.stderr)
+        return 1
     target = args.locate
     mac, label = _resolve_target(target)
     cap = capability()
@@ -1118,6 +1142,9 @@ class LocateSession:
         self.error = ""
         self._provoke = bool(provoke)
         self._category = category or ""
+        if not _SUPPORTED:
+            self.error = "unsupported_os"
+            return {"ok": False, "error": "unsupported_os", "reason": _UNSUPPORTED_MSG}
         cap = capability()
         if not cap["root"]:
             self.error = "needs_root"

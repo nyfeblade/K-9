@@ -130,9 +130,14 @@ def run() -> dict:
 
     # 11) Wi-Fi monitor capability (locate)
     cap = wifiloc.capability()
-    out.append(_chk("Wi-Fi monitor capability (locate)", bool(cap.get("recommended")),
-                    f"adapter: {cap.get('recommended') or 'none monitor-capable'}",
-                    f"root={cap['root']} iw={cap['iw']} interfaces={cap['interfaces']}"))
+    if cap.get("supported") is False:
+        out.append(_chk("Wi-Fi monitor capability (locate)", bool(cap.get("recommended")),
+                        "not available on this OS (Linux-only feature)",
+                        cap.get("reason", "")))
+    else:
+        out.append(_chk("Wi-Fi monitor capability (locate)", bool(cap.get("recommended")),
+                        f"adapter: {cap.get('recommended') or 'none monitor-capable'}",
+                        f"root={cap['root']} iw={cap['iw']} interfaces={cap['interfaces']}"))
 
     # 12) nomore403 (403 bypass)
     out.append(_chk("nomore403 (403 bypass)", bypass.available(),

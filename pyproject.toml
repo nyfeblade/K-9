@@ -18,6 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
   "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS :: MacOS X",
   "Environment :: Console",
   "Environment :: Web Environment",
   "Topic :: System :: Networking :: Monitoring",
