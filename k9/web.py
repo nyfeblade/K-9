@@ -864,23 +864,23 @@ PAGE = r"""<!DOCTYPE html>
 <title>K-9 — network device awareness</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="shortcut icon" type="image/png" href="/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- system fonts only — no external webfont, renders fully offline -->
 <style>
   :root{
-    --bg:#0a0e0c; --bg2:#0d1311; --card:#0f1513;
-    --line:rgba(255,255,255,.09); --txt:#e8edf6; --dim:#8595ad;
-    --red:#ff4d5e; --amber:#e0a93b; --cyan:#34e27a; --green:#34e27a;
-    --violet:#6a92e8; --blue:#5c86e6;
+    --bg:#0B1220; --bg2:#0F1728; --card:#121C2F;
+    --line:rgba(255,255,255,.07); --txt:#E8ECF4; --dim:#8A94A8;
+    --red:#ff5b67; --amber:#e6a24b; --cyan:#4fb985; --green:#4fb985;
+    --violet:#8e86ff; --blue:#5e93e6;
+    --gold:#C08542; --gold1:#D9A65A; --goldtint:rgba(192,133,66,.14);
   }
   *{box-sizing:border-box}
   body{margin:0;font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    color:var(--txt);background:#080b0a;}
+    color:var(--txt);background:#080D18;}
   header{position:sticky;top:0;backdrop-filter:blur(14px);background:rgba(7,11,20,.7);
     border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:16px;z-index:5;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:10px}
   .logomark{height:28px;width:auto;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
-  .logo{font-weight:800;letter-spacing:.4px;font-size:18px;color:var(--green);font-family:ui-monospace,monospace}
+  .logo{font-weight:700;letter-spacing:.3px;font-size:18px;color:var(--txt)}
   .pill{font-size:12px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
   .spacer{flex:1}
   .stat{font-size:13px;color:var(--dim)} .stat b{color:var(--txt);font-size:16px}
@@ -888,8 +888,8 @@ PAGE = r"""<!DOCTYPE html>
   .tools{display:flex;gap:6px;flex-wrap:wrap}
   .tbtn{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);border-radius:9px;
     padding:6px 11px;font-size:12.5px;cursor:pointer;transition:.15s}
-  .tbtn:hover{border-color:var(--cyan)}
-  .tbtn.on{border-color:var(--green);color:var(--green);background:rgba(52,226,122,.13)}
+  .tbtn:hover{border-color:rgba(255,255,255,.14)}
+  .tbtn.on{border-color:var(--gold);color:var(--gold1);background:var(--goldtint)}
   .tbtn.on .ic{opacity:1}
   .tbtn:disabled{opacity:.55}
   .evrow{border:1px solid var(--line);border-left:3px solid var(--dim);border-radius:8px;padding:8px 11px;margin-bottom:7px;font-size:13px}
@@ -897,8 +897,8 @@ PAGE = r"""<!DOCTYPE html>
   .evrow.ev-new_ports{border-left-color:var(--amber)} .evrow.ev-device_left{border-left-color:var(--dim)}
   .evt{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);margin-right:6px}
   .evts{color:var(--dim);font-size:11px;margin-top:3px;font-variant-numeric:tabular-nums}
-  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;
-    box-shadow:0 0 10px var(--green)} .dot.busy{background:var(--amber);box-shadow:0 0 10px var(--amber);animation:pulse 1s infinite}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px}
+  .dot.busy{background:var(--amber);animation:pulse 1s infinite}
   @keyframes pulse{50%{opacity:.3}}
   main{max-width:1180px;margin:0 auto;padding:22px}
 
@@ -909,32 +909,32 @@ PAGE = r"""<!DOCTYPE html>
   .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .seg button{background:transparent;color:var(--dim);border:0;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer;transition:.15s}
   .seg button+button{border-left:1px solid var(--line)}
-  .seg button.on{background:rgba(52,226,122,.16);color:var(--txt)}
+  .seg button.on{background:rgba(255,255,255,.07);color:var(--txt)}
   .seg button:hover:not(.on){color:var(--txt);background:rgba(255,255,255,.04)}
-  input,select{background:#0a1120;color:var(--txt);border:1px solid var(--line);border-radius:9px;
+  input,select{background:#0C1424;color:var(--txt);border:1px solid var(--line);border-radius:9px;
     padding:7px 10px;font:inherit;font-size:13px;outline:none}
-  input{width:170px;font-variant-numeric:tabular-nums} input:focus,select:focus{border-color:var(--cyan)}
+  input{width:170px;font-variant-numeric:tabular-nums} input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(192,133,66,.16)}
   .btn{background:rgba(255,255,255,.06);color:var(--txt);border:1px solid var(--line);border-radius:9px;
     padding:7px 13px;font:inherit;font-size:13px;cursor:pointer;transition:.15s}
   .btn:hover{border-color:rgba(255,255,255,.3)}
-  .btn.primary{background:var(--green);color:#04111c;font-weight:700;border:0}
-  .btn.primary:disabled{opacity:.5;cursor:default}
+  .btn.primary{background:var(--gold);color:#14100A;font-weight:600;border:0}
+  .btn.primary:hover{background:var(--gold1)} .btn.primary:disabled{opacity:.5;cursor:default}
   .hint{font-size:12px;color:var(--amber);flex-basis:100%;min-height:0}
   .hint:empty{display:none}
 
   .viewtoggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-left:auto}
   .viewtoggle button{background:transparent;color:var(--dim);border:0;padding:6px 13px;font:inherit;font-size:13px;cursor:pointer}
   .viewtoggle button+button{border-left:1px solid var(--line)}
-  .viewtoggle button.on{background:rgba(52,226,122,.16);color:var(--txt)}
+  .viewtoggle button.on{background:rgba(255,255,255,.07);color:var(--txt)}
   #netmap-wrap{position:relative;display:none}
   #netmap{width:100%;height:640px;display:block;border:1px solid var(--line);border-radius:16px;cursor:pointer;
-    background:#0a0e0c}
+    background:#0B1220}
   #maptip{position:absolute;pointer-events:none;background:rgba(7,11,20,.94);border:1px solid var(--line);border-radius:8px;
     padding:6px 10px;font-size:12px;color:var(--txt);display:none;white-space:nowrap;z-index:3;transform:translate(-50%,-130%)}
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
   .chip{cursor:pointer;font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--dim);
     background:var(--card);user-select:none;transition:.15s}
-  .chip.on{color:var(--txt);border-color:var(--cyan);box-shadow:0 0 0 1px rgba(52,226,122,.3) inset}
+  .chip.on{color:var(--gold1);border-color:var(--gold);background:var(--goldtint)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 16px;position:relative;
     transition:.18s;overflow:hidden}
@@ -953,7 +953,7 @@ PAGE = r"""<!DOCTYPE html>
   .flag.CAMERA,.flag.SURVEILLANCE,.flag.INSECURE,.flag.EXPOSED,.flag.REMOTE{background:rgba(255,93,108,.16);color:var(--red);border-color:transparent}
   .flag.CAMERAq,.flag.HIDDEN,.flag.UNKNOWN{background:rgba(255,193,77,.15);color:var(--amber);border-color:transparent}
   .flag.MIC{background:rgba(185,139,255,.16);color:var(--violet);border-color:transparent}
-  .flag.NEW{background:rgba(52,226,122,.15);color:var(--cyan);border-color:transparent}
+  .flag.NEW{background:rgba(79,185,133,.15);color:var(--green);border-color:transparent}
   .flag.ROUTER{background:rgba(90,166,255,.15);color:var(--blue);border-color:transparent}
   .ports{margin-top:10px;font-size:11.5px;color:var(--dim);font-family:ui-monospace,monospace}
   .idline{margin-top:8px;font-size:11.5px;color:var(--green);word-break:break-word}
@@ -968,7 +968,7 @@ PAGE = r"""<!DOCTYPE html>
   .modal-overlay{position:fixed;inset:0;background:rgba(3,6,12,.66);backdrop-filter:blur(4px);
     display:none;align-items:flex-start;justify-content:center;z-index:50;padding:40px 16px;overflow:auto}
   .modal-overlay.on{display:flex}
-  .modal{width:min(680px,100%);background:#0d1311;border:1px solid var(--line);
+  .modal{width:min(680px,100%);background:var(--card);border:1px solid var(--line);
     border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden}
   .m-head{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
   .m-ico{font-size:30px;line-height:1}
@@ -984,7 +984,7 @@ PAGE = r"""<!DOCTYPE html>
   .panelrow{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
   .panelrow .u{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--cyan);flex:1;word-break:break-all}
   .panelrow .st{font-size:11px;color:var(--dim);white-space:nowrap}
-  .openbtn{background:var(--green);color:#04111c;font-weight:700;border:0;
+  .openbtn{background:var(--gold);color:#14100A;font-weight:600;border:0;
     border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;text-decoration:none;white-space:nowrap}
   .badge-best{font-size:9.5px;background:rgba(67,224,160,.2);color:var(--green);padding:2px 7px;border-radius:5px;font-weight:700;letter-spacing:.3px}
   .warn{background:rgba(255,77,94,.1);border:1px solid rgba(255,93,108,.5);
@@ -1007,8 +1007,8 @@ PAGE = r"""<!DOCTYPE html>
     background:rgba(133,149,173,.12);color:#9aa7bd;font-size:0}
   .ico .ic{width:21px;height:21px;vertical-align:0;stroke-width:1.7}
   .ico-camera{background:rgba(255,93,108,.13);color:#ff5d6c} .ico-voice{background:rgba(185,139,255,.13);color:#b98bff}
-  .ico-media{background:rgba(90,166,255,.13);color:#5aa6ff} .ico-printer{background:rgba(67,224,160,.13);color:#43e0a0}
-  .ico-network{background:rgba(52,226,122,.13);color:#34e27a} .ico-computer{background:rgba(154,167,189,.13);color:#aab4c6}
+  .ico-media{background:rgba(90,166,255,.13);color:#5aa6ff} .ico-printer{background:rgba(67,224,160,.13);color:#4fb985}
+  .ico-network{background:rgba(79,185,133,.13);color:#4fb985} .ico-computer{background:rgba(154,167,189,.13);color:#aab4c6}
   .ico-mobile{background:rgba(90,166,255,.13);color:#5aa6ff} .ico-iot{background:rgba(255,193,77,.13);color:#ffc14d}
   .ico-unknown,.ico-label{background:rgba(133,149,173,.1);color:#8595ad}
   .m-ico{width:46px !important;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
@@ -1020,7 +1020,7 @@ PAGE = r"""<!DOCTYPE html>
   .locstats{font-size:13px;color:var(--txt);margin-top:9px;font-variant-numeric:tabular-nums}
   .locstats b{color:var(--cyan)}
   .locctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .btn.on{border-color:var(--green);color:var(--green);background:rgba(52,226,122,.13)}
+  .btn.on{border-color:var(--gold);color:var(--gold1);background:var(--goldtint)}
   .lochint{font-size:12.5px;line-height:1.5;margin-top:9px;padding:9px 11px;border-radius:8px;border:1px solid var(--line)}
   .lochint.warn{background:rgba(226,195,78,.08);border-color:rgba(226,195,78,.35);color:#e9d9a0}
   .lochint.bad{background:rgba(255,77,94,.08);border-color:rgba(255,77,94,.4);color:#ffb3bb}
@@ -1042,7 +1042,7 @@ PAGE = r"""<!DOCTYPE html>
   .risk{display:flex;align-items:center;gap:14px}
   .ring{--p:0;--rc:var(--green);width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
     background:conic-gradient(var(--rc) calc(var(--p)*3.6deg), rgba(255,255,255,.08) 0)}
-  .ring i{width:50px;height:50px;border-radius:50%;background:#0c1422;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:17px}
+  .ring i{width:50px;height:50px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:17px}
   .risk .lbl{font-weight:800;text-transform:uppercase;letter-spacing:.5px;font-size:14px}
   .risk .sub{color:var(--dim);font-size:12px}
   .finding{border:1px solid var(--line);border-left:3px solid var(--dim);border-radius:10px;padding:10px 12px;margin-bottom:8px}
@@ -1064,7 +1064,7 @@ PAGE = r"""<!DOCTYPE html>
   .cvss.m{background:rgba(255,193,77,.16);color:var(--amber)} .cvss.l{background:rgba(90,166,255,.16);color:var(--blue)}
   .cdesc{color:var(--dim)}
   .btnrow{display:flex;gap:8px;flex-wrap:wrap}
-  .deepbtn{background:var(--green);color:#04111c;font-weight:700;border:0;border-radius:10px;
+  .deepbtn{background:var(--gold);color:#14100A;font-weight:600;border:0;border-radius:10px;
     padding:9px 14px;font-size:13px;cursor:pointer}
   .deepbtn:disabled{opacity:.6;cursor:default}
   .credbtn{background:#bb3346;color:#fff;font-weight:700;border:0;border-radius:10px;
@@ -1082,17 +1082,15 @@ PAGE = r"""<!DOCTYPE html>
   .tag2{font-size:10.5px;color:var(--blue);background:rgba(90,166,255,.12);border-radius:5px;padding:2px 7px}
   .locbar{height:22px;border-radius:11px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid var(--line)}
   .locfill{height:100%;border-radius:11px;background:var(--green);transition:width .6s ease}
-  .loccmd{font-family:ui-monospace,monospace;font-size:12px;color:var(--cyan);background:#0a1120;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;word-break:break-all}
+  .loccmd{font-family:ui-monospace,monospace;font-size:12px;color:var(--cyan);background:#0C1424;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;word-break:break-all}
   #locviz{width:100%;height:290px;display:block;border-radius:14px;border:1px solid var(--line);
-    background:#0a0e0c}
-  /* ===== terminal / professional-hacking theme ===== */
-  body,input,button,textarea,select,.logo,.m-title{font-family:'Fira Code',ui-monospace,'JetBrains Mono',monospace !important}
-  body{letter-spacing:0}
-  .sec h4{font-family:'Fira Code',ui-monospace,monospace}
+    background:#0B1220}
+  /* ===== typography: clean system sans for UI, monospace only for technical data ===== */
+  .mono,.mac,.ip,.ports,.m-ip,.loccmd,.cverow a,.panelrow .u,.locstats,.curlcode{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
   .scrow{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
   .scmark{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:4px;margin-top:1px}
   .scmark.ok{color:#04130b;background:var(--green)}
-  .scmark.info{color:#0a0e0c;background:#e2c34e}
+  .scmark.info{color:#14100A;background:var(--gold)}
   .scbody{min-width:0}
   .scn{font-weight:600;color:var(--txt)}
   .scd{font-size:12.5px;margin-top:1px}
@@ -1114,11 +1112,11 @@ PAGE = r"""<!DOCTYPE html>
   .tbtn,.chip,.btn,.deepbtn,.credbtn,.feedbtn,.openbtn,.viewtoggle button{border-radius:6px}
   .ico{border-radius:8px} .m-ico{border-radius:9px}
   #netmap{border-radius:10px} #locviz{border-radius:8px}
-  header{backdrop-filter:blur(8px);background:rgba(8,11,10,.85);box-shadow:0 1px 0 rgba(52,226,122,.18)}
+  header{backdrop-filter:blur(14px);background:rgba(11,18,32,.72);box-shadow:none}
   .card:hover{box-shadow:0 6px 22px rgba(0,0,0,.55);transform:none}
   .card.alert{box-shadow:inset 2px 0 0 var(--red)}
   a{color:var(--green)}
-  ::selection{background:rgba(52,226,122,.3)}
+  ::selection{background:rgba(192,133,66,.32)}
   /* right-click device menu */
   #ctxmenu{position:fixed;display:none;z-index:90;min-width:190px;background:#0c1118;border:1px solid var(--line);border-radius:9px;padding:5px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
   .ctxitem{padding:7px 11px;font-size:13px;color:var(--txt);border-radius:6px;cursor:pointer;white-space:nowrap}
@@ -1504,7 +1502,7 @@ function drawLocViz(){
   } else {
     // moving radar sweep — proves we're still listening / hunting (never static)
     const head=a0+sweep*((now/900)%1);
-    ctx.strokeStyle="rgba(52,226,122,0.9)"; ctx.shadowColor="rgba(52,226,122,0.7)"; ctx.shadowBlur=14;
+    ctx.strokeStyle="rgba(79,185,133,0.9)"; ctx.shadowColor="rgba(79,185,133,0.7)"; ctx.shadowBlur=14;
     ctx.beginPath(); ctx.arc(cx,cy,R,head-0.4,head); ctx.stroke(); ctx.shadowBlur=0;
   }
   // center readouts
@@ -2048,7 +2046,7 @@ function draw(){
 
 // ---------------- network map visualizer (pure canvas) ----------------
 let VIEW="grid", MAP_RAF=null, MAP_HOVER=null, MAP_NODES=[];
-const CATCOLOR={camera:"#ff5d6c",voice:"#b98bff",media:"#5aa6ff",printer:"#43e0a0",network:"#34e27a",computer:"#9aa7bd",mobile:"#5aa6ff",iot:"#ffc14d",unknown:"#8595ad"};
+const CATCOLOR={camera:"#ff5d6c",voice:"#b98bff",media:"#5aa6ff",printer:"#4fb985",network:"#4fb985",computer:"#9aa7bd",mobile:"#5aa6ff",iot:"#ffc14d",unknown:"#8595ad"};
 function setView(v){
   VIEW=v;
   document.getElementById("vt-grid").classList.toggle("on",v==="grid");
@@ -2074,7 +2072,7 @@ function drawMap(){
   ctx.strokeStyle="rgba(255,255,255,0.05)"; ctx.lineWidth=1;
   for(let r=80;r<maxR;r+=Math.max(60,(maxR-80)/4)){ ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke(); }
   const t=performance.now()/1000, sweep=(t*0.7)%(Math.PI*2);
-  for(let k=0;k<48;k++){ const a=sweep-k*0.025; ctx.strokeStyle="rgba(52,226,122,"+(0.10*(1-k/48))+")"; ctx.lineWidth=1.5;
+  for(let k=0;k<48;k++){ const a=sweep-k*0.025; ctx.strokeStyle="rgba(79,185,133,"+(0.10*(1-k/48))+")"; ctx.lineWidth=1.5;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*maxR,cy+Math.sin(a)*maxR);ctx.stroke(); }
   MAP_NODES=[]; const per=14;
   others.forEach((d,i)=>{ const ring=Math.floor(i/per), cnt=Math.min(per,others.length-ring*per), idx=i-ring*per,
@@ -2083,9 +2081,9 @@ function drawMap(){
   others.forEach(d=>{ ctx.strokeStyle=d.is_alert?"rgba(255,93,108,0.28)":"rgba(255,255,255,0.07)"; ctx.lineWidth=d.is_alert?1.5:1;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(d.__x,d.__y);ctx.stroke(); });
   others.forEach(d=>drawNode(ctx,d,t));
-  ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2); ctx.fillStyle="rgba(52,226,122,.18)"; ctx.fill();
-  ctx.lineWidth=2; ctx.strokeStyle="#34e27a"; ctx.stroke();
-  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle="#34e27a";ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2); ctx.fillStyle="rgba(79,185,133,.18)"; ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle="#4fb985"; ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle="#4fb985";ctx.fill();
   ctx.font="11px ui-sans-serif"; ctx.fillStyle="#8595ad"; ctx.fillText("gateway",cx,cy+31);
   const tip=document.getElementById("maptip"), hv=MAP_NODES.find(d=>d.ip===MAP_HOVER);
   if(hv&&tip){ tip.style.display="block"; tip.style.left=hv.__x+"px"; tip.style.top=hv.__y+"px"; tip.textContent=(hv.display_name||hv.device_type)+" · "+hv.ip; }
