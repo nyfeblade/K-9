@@ -106,6 +106,51 @@ check("arp (dash form)", sysnet.arp_table(), {
     "224.0.0.22": "01:00:5e:00:00:16",
 })
 
+# --- Windows PowerShell probe (interfaces + gateway from JSON) ---------------
+print("Windows PowerShell probe parser:")
+ifs, gw = sysnet._parse_windows_probe(
+    '{"gateway":"192.168.1.1","interfaces":['
+    '{"ip":"192.168.1.42","prefix":24,"name":"Ethernet","mac":"A4-83-E7-2B-1C-9F"},'
+    '{"ip":"192.168.56.1","prefix":24,"name":"VirtualBox Host-Only","mac":"0A-00-27-00-00-16"}]}'
+)
+check("win probe iface count", len(ifs), 2)
+check("win probe ip", ifs[0].ip, "192.168.1.42")
+check("win probe prefix", ifs[0].prefixlen, 24)
+check("win probe mac (dashes normalised)", ifs[0].mac, "a4:83:e7:2b:1c:9f")
+check("win probe name", ifs[0].name, "Ethernet")
+check("win probe gateway", gw, "192.168.1.1")
+# single interface -> ConvertTo-Json emits a bare object, not an array
+ifs1, gw1 = sysnet._parse_windows_probe(
+    '{"gateway":"10.0.0.1","interfaces":{"ip":"10.0.0.5","prefix":24,"name":"Wi-Fi","mac":"B8-27-EB-01-02-03"}}'
+)
+check("win probe single iface", (len(ifs1), ifs1[0].ip, gw1), (1, "10.0.0.5", "10.0.0.1"))
+check("win probe empty/garbage", sysnet._parse_windows_probe(""), ([], ""))
+
+# --- Windows route-print fallback gateway (lowest metric wins) --------------
+print("Windows route print parser:")
+ROUTE_PRINT = (
+    "===========================================================================\n"
+    "Active Routes:\n"
+    "Network Destination        Netmask          Gateway       Interface  Metric\n"
+    "          0.0.0.0          0.0.0.0      192.168.1.1     192.168.1.42     25\n"
+    "          0.0.0.0          0.0.0.0        10.8.0.1        10.8.0.2       35\n"
+    "      127.0.0.0        255.0.0.0         On-link         127.0.0.1    331\n"
+)
+check("route print gateway (min metric)", sysnet._parse_route_print(ROUTE_PRINT), "192.168.1.1")
+
+# --- bundled offline OUI database loads on any OS ---------------------------
+print("Bundled OUI database:")
+from k9 import oui  # noqa: E402
+_bundle = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "k9", "data", "oui-prefixes.txt.gz")
+_saved_paths = oui._DB_PATHS
+oui._DB_PATHS = [_bundle]        # force the bundle, ignore any system DB on this box
+_db = oui.OuiDB()
+oui._DB_PATHS = _saved_paths
+check("bundle entry count > 10k", _db.__len__() > 10000, True)
+check("bundle source label", _db.source, "bundled (IEEE OUI)")
+check("bundle lookup (00D0EF -> IGT)", _db.lookup("00:D0:EF:12:34:56"), "IGT")
+
 print()
 print("RESULT:", "ALL PASSED" if not _failures else f"{len(_failures)} FAILURE(S): {_failures}")
 sys.exit(1 if _failures else 0)

@@ -14,6 +14,7 @@ both of which matter when you're deciding whether a host is trying to hide.
 
 from __future__ import annotations
 
+import gzip
 import os
 import re
 
@@ -37,9 +38,9 @@ _DB_PATHS = [
     r"C:\Program Files (x86)\Nmap\nmap-mac-prefixes",
     r"C:\Program Files\Nmap\nmap-mac-prefixes",
     r"C:\Program Files\Wireshark\manuf",
-    # ---- bundled with K-9 (optional; drop a file here for offline coverage
-    #      on machines with no system DB, e.g. a stock Mac without Homebrew) ----
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "oui-prefixes.txt"),
+    # ---- bundled with K-9: ~30k IEEE prefixes, gzipped. Guarantees offline
+    #      vendor coverage on any OS (e.g. a stock Mac/Windows with no system DB) ----
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "oui-prefixes.txt.gz"),
 ]
 
 # Always-on fallback: vendors that matter for *flagging*, keyed by 6-hex OUI.
@@ -143,13 +144,14 @@ class OuiDB:
                 continue
             added = self._load_file(path)
             if added:
-                self.source = path
+                self.source = "bundled (IEEE OUI)" if path.endswith("oui-prefixes.txt.gz") else path
                 return  # first usable DB wins; curated entries already seeded
 
     def _load_file(self, path: str) -> int:
         added = 0
+        opener = gzip.open if path.endswith(".gz") else open
         try:
-            with open(path, encoding="utf-8", errors="replace") as fh:
+            with opener(path, "rt", encoding="utf-8", errors="replace") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line or line.startswith("#"):

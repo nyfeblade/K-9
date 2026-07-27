@@ -22,14 +22,21 @@ required.
 
 ### Platform support
 
-K-9 runs on Linux and macOS. OS-specific network calls live behind a small
-platform layer (`k9/sysnet.py`); the rest of the codebase is portable stdlib.
+K-9 runs on Linux, macOS and Windows. OS-specific network calls live behind a
+small platform layer (`k9/sysnet.py`); the rest of the codebase is portable
+stdlib. Vendor ID works fully offline everywhere — K-9 ships a bundled ~30k-entry
+IEEE OUI database (`k9/data/oui-prefixes.txt.gz`), and prefers a richer system DB
+(nmap/Wireshark) when one is present.
 
 | OS | Status |
 |---|---|
 | **Linux** | ✅ Fully supported — all features |
-| **macOS** | ✅ Supported — discovery, fingerprinting, classification, the web dashboard and the security audit all run. Vendor ID uses nmap's OUI DB if present (`brew install nmap`) and otherwise falls back to the built-in brand map. The **Wi-Fi locator is Linux-only** |
-| **Windows** | 🚧 In progress — the ARP table and ping are already handled; interface/gateway enumeration still needs an `ipconfig`/`route` (or `GetAdaptersAddresses`) path before it's usable |
+| **macOS** | ✅ Supported — discovery, fingerprinting, classification, vendor ID, the web dashboard and the security audit all run (`ifconfig`/`route`/`arp`). The **Wi-Fi locator is Linux-only** |
+| **Windows** | ✅ Supported — discovery, fingerprinting, vendor ID, dashboard and audit run. Interface/gateway come from PowerShell (`Get-NetIPAddress`/`Get-NetRoute`), ARP from `arp -a`. The **Wi-Fi locator is Linux-only** |
+
+> macOS and Windows support is implemented and unit-tested against real command
+> output (`python3 tests/test_sysnet.py`); live end-to-end validation on those
+> platforms is ongoing.
 
 The **Wi-Fi RF locator** (`--locate`) is **Linux-only** by design — it needs a raw
 `AF_PACKET` monitor-mode socket (macOS/Windows would require CoreWLAN / Npcap). On

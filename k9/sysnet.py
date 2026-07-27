@@ -16,6 +16,7 @@ by ICMP alone.
 
 from __future__ import annotations
 
+import json
 import platform
 import re
 import socket
@@ -154,10 +155,81 @@ def _bsd_interfaces() -> list[IfAddr]:
     return result
 
 
+# One PowerShell call yields interfaces + gateway as JSON. We use cmdlets
+# (Get-NetIPAddress / Get-NetAdapter / Get-NetRoute) rather than parsing
+# `ipconfig`, because their output is localisation-independent — the property
+# names are fixed English regardless of the machine's display language.
+_WIN_PS = (
+    "$ErrorActionPreference='SilentlyContinue';"
+    "$gw=(Get-NetRoute -DestinationPrefix '0.0.0.0/0' | Sort-Object RouteMetric |"
+    " Select-Object -First 1).NextHop;"
+    "$ifs=Get-NetIPAddress -AddressFamily IPv4 |"
+    " Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' } |"
+    " ForEach-Object { $a=Get-NetAdapter -InterfaceIndex $_.InterfaceIndex;"
+    " [PSCustomObject]@{ip=$_.IPAddress;prefix=[int]$_.PrefixLength;"
+    "name=$_.InterfaceAlias;mac=$a.MacAddress} };"
+    "[PSCustomObject]@{gateway=$gw;interfaces=@($ifs)} | ConvertTo-Json -Compress -Depth 4"
+)
+
+_win_probe_cache: tuple[list, str] | None = None
+
+
+def _windows_probe() -> tuple[list, str]:
+    """Run the PowerShell probe once and cache (interfaces, gateway)."""
+    global _win_probe_cache
+    if _win_probe_cache is None:
+        out = _run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _WIN_PS], timeout=12)
+        _win_probe_cache = _parse_windows_probe(out)
+    return _win_probe_cache
+
+
+def _parse_windows_probe(js: str) -> tuple[list, str]:
+    """Parse the probe's JSON into (interfaces, gateway). Pure — unit-tested."""
+    try:
+        data = json.loads(js) if js and js.strip() else {}
+    except (ValueError, TypeError):
+        return [], ""
+    gw = str(data.get("gateway") or "")
+    if not re.match(r"^\d+\.\d+\.\d+\.\d+$", gw):
+        gw = ""
+    raw = data.get("interfaces") or []
+    if isinstance(raw, dict):          # ConvertTo-Json emits a bare object for one item
+        raw = [raw]
+    ifs: list[IfAddr] = []
+    for e in raw:
+        if not isinstance(e, dict):
+            continue
+        ip = str(e.get("ip", ""))
+        if not re.match(r"^\d+\.\d+\.\d+\.\d+$", ip):
+            continue
+        try:
+            prefix = int(e.get("prefix") or 24)
+        except (ValueError, TypeError):
+            prefix = 24
+        ifs.append(IfAddr(name=str(e.get("name", "?")), ip=ip,
+                          prefixlen=prefix, mac=norm_mac(str(e.get("mac", "")))))
+    return ifs, gw
+
+
+def _parse_route_print(text: str) -> str:
+    """Default gateway from `route print -4` — the 0.0.0.0/0.0.0.0 row is numeric
+    and language-independent. Returns the lowest-metric gateway."""
+    best, best_metric = "", 1 << 30
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) >= 5 and parts[0] == "0.0.0.0" and parts[1] == "0.0.0.0" \
+                and re.match(r"^\d+\.\d+\.\d+\.\d+$", parts[2]):
+            try:
+                metric = int(parts[-1])
+            except ValueError:
+                metric = 0
+            if metric < best_metric:
+                best, best_metric = parts[2], metric
+    return best
+
+
 def _windows_interfaces() -> list[IfAddr]:
-    # Filled in with the Windows port; own_ip() + a synthesised /24 keep the
-    # scanner functional in the meantime.
-    return []
+    return _windows_probe()[0]
 
 
 # --------------------------------------------------------------------------- #
@@ -202,7 +274,10 @@ def _bsd_gateway() -> str:
 
 
 def _windows_gateway() -> str:
-    return ""
+    gw = _windows_probe()[1]
+    if gw:
+        return gw
+    return _parse_route_print(_run(["route", "print", "-4"]))
 
 
 # --------------------------------------------------------------------------- #

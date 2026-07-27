@@ -19,6 +19,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: POSIX :: Linux",
   "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
   "Environment :: Console",
   "Environment :: Web Environment",
   "Topic :: System :: Networking :: Monitoring",
@@ -37,3 +38,6 @@ k9 = "k9.cli:main"
 [tool.setuptools]
 packages = ["k9"]
 py-modules = []                  # the root k9.py is the no-install launcher, NOT a packaged module
+
+[tool.setuptools.package-data]
+k9 = ["data/*"]                  # bundled offline OUI database
